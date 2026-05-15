@@ -1,0 +1,924 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jackal Chien｜Senior System Engineer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+TC:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg:          #fbfcfd;
+      --surface:     #ffffff;
+      --text:        #0f172a;
+      --text-soft:   #475569;
+      --text-faint:  #94a3b8;
+      --text-ghost:  #cbd5e1;
+      --accent:      #3b82f6;
+      --accent-2:    #6366f1;
+      --accent-soft: #eff6ff;
+      --line:        rgba(15, 23, 42, 0.06);
+
+      /* Layered shadow palette — the heart of "airy elevation" */
+      --shadow-1: 0 1px 2px rgba(15, 23, 42, 0.03);
+      --shadow-2: 0 4px 8px rgba(15, 23, 42, 0.02), 0 1px 3px rgba(15, 23, 42, 0.04);
+      --shadow-3: 0 10px 24px rgba(15, 23, 42, 0.04), 0 4px 8px rgba(15, 23, 42, 0.03), 0 1px 3px rgba(15, 23, 42, 0.02);
+      --shadow-4: 0 20px 40px rgba(15, 23, 42, 0.06), 0 8px 16px rgba(15, 23, 42, 0.04), 0 2px 4px rgba(15, 23, 42, 0.02);
+      --shadow-hover: 0 30px 60px rgba(59, 130, 246, 0.08), 0 12px 24px rgba(15, 23, 42, 0.04), 0 2px 4px rgba(15, 23, 42, 0.02);
+
+      --gradient-1: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #a855f7 100%);
+      --gradient-soft: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 50%, #f3e8ff 100%);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', 'Noto Sans TC', system-ui, sans-serif;
+      color: var(--text);
+      line-height: 1.7;
+      font-weight: 400;
+      letter-spacing: -0.005em;
+      background: var(--bg);
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* Floating decorative blobs for ambient depth */
+    body::before, body::after {
+      content: '';
+      position: fixed; z-index: 0; pointer-events: none;
+      border-radius: 50%; filter: blur(80px);
+    }
+    body::before {
+      top: -150px; right: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(59, 130, 246, 0.08), transparent 70%);
+    }
+    body::after {
+      bottom: -150px; left: -100px;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, rgba(168, 85, 247, 0.06), transparent 70%);
+    }
+
+    /* ── NAV ── */
+    nav {
+      position: sticky; top: 20px; z-index: 100;
+      max-width: 920px; margin: 20px auto 0;
+      padding: 12px 24px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      border-radius: 999px;
+      box-shadow: var(--shadow-3);
+    }
+    .nav-logo {
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 600; font-size: 0.84rem;
+      color: var(--text); letter-spacing: 0.8px;
+    }
+    .nav-logo span {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .nav-links { display: flex; gap: 28px; list-style: none; }
+    .nav-links a {
+      font-size: 0.82rem; color: var(--text-soft); text-decoration: none;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--accent); }
+    @media (max-width: 700px) {
+      nav { margin: 14px 16px 0; padding: 10px 18px; }
+      .nav-links { gap: 14px; }
+      .nav-links a { font-size: 0.74rem; }
+    }
+
+    /* ── CONTAINER ── */
+    .wrap {
+      max-width: 920px; margin: 0 auto;
+      padding: 60px 24px 80px;
+      position: relative; z-index: 1;
+    }
+
+    /* ── STAGGER ANIMATIONS ── */
+    @keyframes lift {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .lift {
+      opacity: 0;
+      animation: lift 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+    .lift-1 { animation-delay: 0.05s; }
+    .lift-2 { animation-delay: 0.15s; }
+    .lift-3 { animation-delay: 0.25s; }
+    .lift-4 { animation-delay: 0.35s; }
+    .lift-5 { animation-delay: 0.45s; }
+
+    /* Reveal on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.9s cubic-bezier(0.4, 0, 0.2, 1),
+                  transform 0.9s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ── HERO ── */
+    .hero {
+      padding: 70px 0 50px;
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 60px;
+      align-items: center;
+    }
+    @media (max-width: 700px) {
+      .hero { grid-template-columns: 1fr; gap: 32px; padding: 50px 0 40px; text-align: center; }
+    }
+
+    .hero-status {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px;
+      background: rgba(59, 130, 246, 0.06);
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; font-weight: 500; letter-spacing: 1px;
+      margin-bottom: 28px;
+      box-shadow: var(--shadow-1);
+    }
+    @media (max-width: 700px) { .hero-status { margin: 0 auto 24px; } }
+
+    .pulse {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 8px #22c55e;
+      animation: pulseDot 2s infinite;
+    }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.7)} }
+
+    .hero-name {
+      font-size: clamp(2.6rem, 6vw, 4rem);
+      font-weight: 700; line-height: 1.05;
+      color: var(--text); letter-spacing: -0.04em;
+      margin-bottom: 14px;
+    }
+    .hero-name .accent {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero-name .light { font-weight: 300; color: var(--text-faint); }
+
+    .hero-title {
+      font-size: 0.95rem; color: var(--text-soft);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500; letter-spacing: 0.5px;
+      margin-bottom: 24px;
+    }
+
+    .hero-desc {
+      font-size: 1.02rem; color: var(--text-soft);
+      line-height: 1.85; max-width: 520px;
+    }
+    @media (max-width: 700px) { .hero-desc { margin: 0 auto; } }
+
+    .hero-actions {
+      display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap;
+    }
+    @media (max-width: 700px) { .hero-actions { justify-content: center; } }
+
+    .btn-primary, .btn-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 22px; border-radius: 999px;
+      font-size: 0.88rem; font-weight: 600;
+      text-decoration: none; border: none; cursor: pointer;
+      transition: transform 0.3s cubic-bezier(0.4,0,0.2,1), box-shadow 0.3s;
+      font-family: 'Inter', sans-serif;
+    }
+    .btn-primary {
+      background: var(--gradient-1);
+      color: white;
+      box-shadow: 0 8px 24px rgba(59, 130, 246, 0.3), 0 2px 4px rgba(59, 130, 246, 0.2);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 14px 32px rgba(59, 130, 246, 0.35), 0 4px 8px rgba(59, 130, 246, 0.25);
+    }
+    .btn-ghost {
+      background: white;
+      color: var(--text);
+      box-shadow: var(--shadow-2);
+    }
+    .btn-ghost:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-3);
+    }
+
+    /* ── AVATAR ── */
+    .hero-avatar-wrap {
+      display: flex; justify-content: center;
+      position: relative;
+    }
+    .hero-avatar {
+      width: 180px; height: 180px;
+      border-radius: 50%;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 30px 60px rgba(15, 23, 42, 0.10),
+        0 12px 24px rgba(59, 130, 246, 0.12),
+        0 4px 8px rgba(15, 23, 42, 0.04);
+      transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+    }
+    .hero-avatar:hover { transform: scale(1.03); }
+    .hero-avatar::before {
+      content: '';
+      position: absolute; inset: -20px;
+      border-radius: 50%;
+      background: var(--gradient-soft);
+      filter: blur(28px); opacity: 0.7;
+      z-index: -1;
+    }
+    .hero-avatar img {
+      width: 100%; height: 100%;
+      object-fit: cover; display: block;
+    }
+
+    /* ── METRICS ROW ── */
+    .metrics {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 0 0 100px;
+      padding: 8px;
+      background: white;
+      border-radius: 24px;
+      box-shadow: var(--shadow-3);
+    }
+    @media (max-width: 700px) {
+      .metrics { grid-template-columns: repeat(2,1fr); gap: 4px; margin-bottom: 70px; }
+    }
+    .metric {
+      padding: 22px 16px;
+      text-align: center;
+      border-radius: 18px;
+      transition: background 0.3s;
+    }
+    .metric:hover { background: var(--accent-soft); }
+    .metric-num {
+      font-size: 2.1rem; font-weight: 700;
+      letter-spacing: -0.04em; line-height: 1;
+      color: var(--text); margin-bottom: 6px;
+    }
+    .metric-num .sym {
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .metric-label {
+      font-size: 0.72rem; color: var(--text-faint);
+      letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* ── SECTION ── */
+    section { padding: 50px 0; }
+    .sec-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      margin-bottom: 14px;
+      display: inline-flex; align-items: center; gap: 10px;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .sec-title {
+      font-size: clamp(2rem, 4vw, 2.6rem);
+      font-weight: 700;
+      color: var(--text); letter-spacing: -0.035em;
+      margin-bottom: 14px;
+      line-height: 1.15;
+    }
+    .sec-sub {
+      color: var(--text-soft); font-size: 1.02rem;
+      margin-bottom: 48px; max-width: 580px;
+      line-height: 1.7;
+    }
+
+    /* ── ABOUT ── */
+    .about {
+      display: grid; grid-template-columns: 1.4fr 1fr;
+      gap: 28px; align-items: start;
+    }
+    @media (max-width: 760px) { .about { grid-template-columns: 1fr; } }
+
+    .bio-block {
+      background: white;
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow-3);
+    }
+    .bio-block p {
+      font-size: 1rem; line-height: 1.95;
+      color: var(--text-soft); margin-bottom: 16px;
+    }
+    .bio-block p:last-of-type { margin-bottom: 0; }
+    .bio-block strong { color: var(--text); font-weight: 600; }
+
+    .quote-block {
+      margin-top: 28px;
+      padding: 24px 28px;
+      background: linear-gradient(135deg, var(--accent-soft), #f5f3ff);
+      border-radius: 18px;
+    }
+    .quote-block p {
+      font-style: italic; color: var(--text) !important;
+      font-size: 0.95rem !important; line-height: 1.8 !important;
+      margin-bottom: 8px !important;
+    }
+    .quote-block cite {
+      font-size: 0.74rem; color: var(--text-faint);
+      font-style: normal; letter-spacing: 1px;
+    }
+
+    .side-stack {
+      display: flex; flex-direction: column; gap: 18px;
+    }
+    .side-block {
+      background: white;
+      padding: 28px 30px;
+      border-radius: 22px;
+      box-shadow: var(--shadow-2);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .side-block:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-hover);
+    }
+    .side-title {
+      font-size: 0.72rem; font-family: 'JetBrains Mono', monospace;
+      font-weight: 600; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--text-faint);
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .side-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+    .side-list li {
+      font-size: 0.88rem; color: var(--text-soft);
+      padding-left: 18px; position: relative;
+      line-height: 1.6;
+    }
+    .side-list li::before {
+      content: ''; position: absolute; left: 0; top: 9px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--gradient-1);
+    }
+
+    /* ── JOURNEY TIMELINE ── */
+    .journey-list {
+      display: flex; flex-direction: column; gap: 20px;
+      position: relative;
+    }
+
+    .job {
+      background: white;
+      padding: 32px 36px;
+      border-radius: 24px;
+      box-shadow: var(--shadow-3);
+      transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), box-shadow 0.4s;
+      position: relative;
+    }
+    .job:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+    .job.current::before {
+      content: '';
+      position: absolute; top: 32px; right: 32px;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.15), 0 0 12px #22c55e;
+    }
+    .job-head {
+      display: flex; align-items: baseline; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap; margin-bottom: 6px;
+    }
+    .job-head h3 { font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .job-period {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem; color: var(--text-faint);
+      letter-spacing: 0.5px;
+    }
+    .job-role {
+      font-size: 0.86rem; font-family: 'JetBrains Mono', monospace;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 500; margin-bottom: 14px;
+    }
+    .job-body { font-size: 0.94rem; color: var(--text-soft); line-height: 1.85; }
+    .job-stack { margin-top: 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+    .stack-tag {
+      font-size: 0.74rem; padding: 5px 12px;
+      background: var(--accent-soft); color: var(--accent);
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+    }
+
+    /* ── CERTS ── */
+    .cert-wall {
+      background: white;
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow-3);
+    }
+    .cert-group { margin-bottom: 32px; }
+    .cert-group:last-child { margin-bottom: 0; }
+    .cert-group-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.74rem; font-weight: 600;
+      color: var(--text); letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .cert-group-name .count {
+      font-size: 0.68rem; padding: 3px 10px;
+      background: var(--accent-soft); color: var(--accent);
+      border-radius: 999px;
+    }
+    .cert-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 10px;
+    }
+    .cert-row {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 18px;
+      background: var(--bg);
+      border-radius: 14px;
+      transition: transform 0.25s, box-shadow 0.25s, background 0.25s;
+    }
+    .cert-row:hover {
+      background: white;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-3);
+    }
+    .cert-ic { font-size: 1.05rem; width: 22px; text-align: center; flex-shrink: 0; }
+    .cert-name { font-size: 0.84rem; color: var(--text); flex: 1; font-weight: 500; line-height: 1.4; }
+    .cert-year { font-size: 0.72rem; color: var(--text-faint); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; }
+
+    /* ── SKILLS ── */
+    .skills-wrap {
+      background: white;
+      padding: 40px;
+      border-radius: 24px;
+      box-shadow: var(--shadow-3);
+    }
+    .skill-row {
+      display: grid; grid-template-columns: 140px 1fr;
+      gap: 28px; align-items: center;
+      padding: 16px 0;
+    }
+    .skill-row:not(:last-child) {
+      box-shadow: 0 1px 0 var(--line);
+    }
+    @media (max-width: 700px) {
+      .skill-row { grid-template-columns: 1fr; gap: 10px; }
+    }
+    .skill-cat {
+      font-size: 0.74rem; color: var(--text-faint);
+      letter-spacing: 1.5px; text-transform: uppercase;
+      font-family: 'JetBrains Mono', monospace; font-weight: 600;
+    }
+    .skill-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+    .skill-chip {
+      font-size: 0.8rem; padding: 6px 14px;
+      background: var(--bg);
+      color: var(--text);
+      border-radius: 999px;
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 500;
+      transition: all 0.25s;
+      cursor: default;
+    }
+    .skill-chip:hover {
+      background: var(--gradient-1);
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(59, 130, 246, 0.25);
+    }
+    .skill-chip.learning { color: var(--text-faint); font-style: italic; }
+
+    /* ── CONTACT ── */
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 16px;
+    }
+    .contact-tile {
+      background: white;
+      padding: 24px 28px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-2);
+      display: flex; align-items: center; gap: 16px;
+      text-decoration: none; color: var(--text);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .contact-tile:hover {
+      transform: translateY(-4px);
+      box-shadow: var(--shadow-hover);
+    }
+    .contact-icon {
+      width: 44px; height: 44px;
+      border-radius: 14px;
+      background: var(--accent-soft);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .contact-lbl {
+      font-size: 0.68rem; color: var(--text-faint);
+      letter-spacing: 1.2px; text-transform: uppercase;
+      font-weight: 600; margin-bottom: 2px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .contact-val { font-size: 0.92rem; font-weight: 600; }
+
+    /* ── FOOTER ── */
+    footer {
+      max-width: 920px; margin: 60px auto 0;
+      padding: 30px 24px;
+      display: flex; justify-content: space-between;
+      flex-wrap: wrap; gap: 12px;
+      font-size: 0.78rem; color: var(--text-faint);
+      position: relative; z-index: 1;
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">JACKAL<span>.</span>CHIEN</div>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#journey">Journey</a></li>
+    <li><a href="#certs">Certifications</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="hero-status lift lift-1">
+        <span class="pulse"></span>
+        OPEN TO NEW OPPORTUNITIES
+      </div>
+      <h1 class="hero-name lift lift-2">
+        <span class="light">Hi, I'm</span><br>
+        Jackal <span class="accent">Chien</span>.
+      </h1>
+      <p class="hero-title lift lift-3">Senior System Engineer · Infrastructure Architect</p>
+      <p class="hero-desc lift lift-4">
+        深耕 Linux 基礎建設 13+ 年，專注於雲端平台、容器化技術與自動化維運。持有 Red Hat RHCA、Kubernetes CKA、Azure AZ-104 等 20+ 國際專業認證。
+      </p>
+      <div class="hero-actions lift lift-5">
+        <a class="btn-primary" href="#contact">聯絡我 →</a>
+        <a class="btn-ghost" href="#journey">查看經歷</a>
+      </div>
+    </div>
+    <div class="hero-avatar-wrap lift lift-3">
+      <div class="hero-avatar">
+        <img src="Screenshot.jpg" alt="Jackal Chien">
+      </div>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics reveal">
+    <div class="metric">
+      <div class="metric-num">13<span class="sym">+</span></div>
+      <div class="metric-label">Years Exp.</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">200<span class="sym">+</span></div>
+      <div class="metric-label">Servers</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">20<span class="sym">+</span></div>
+      <div class="metric-label">Certifications</div>
+    </div>
+    <div class="metric">
+      <div class="metric-num">30<span class="sym">萬+</span></div>
+      <div class="metric-label">Users</div>
+    </div>
+  </div>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="sec-tag reveal">— 01 · About</div>
+    <h2 class="sec-title reveal">關於我</h2>
+    <p class="sec-sub reveal">From avionics technician to senior IT architect — a 20-year journey of continuous learning.</p>
+
+    <div class="about">
+      <div class="bio-block reveal">
+        <p>資深系統工程師，深耕 <strong>Linux 基礎建設超過 13 年</strong>。從航空電子起步，轉型進入資訊領域後，歷經 MIS、系統工程師到主任工程師，每個階段都持續深化技術深度與管理廣度。</p>
+        <p>現職負責多項大型平台的架構規劃與穩定維運，<strong>管理超過 200 台伺服器</strong>，涵蓋音樂串流（30 萬用戶）、行動通訊整合、金流支付等多元服務。近年積極主導<strong>容器化轉型</strong>，推進 Docker / Kubernetes 平台建置，並以 Ansible 實現自動化維運，顯著降低營運成本與人力投入。</p>
+        <div class="quote-block">
+          <p>「走向正確的道路拚的是智力和想像力，走向成功的道路拚的卻是執行力。」</p>
+          <cite>— Personal Motto</cite>
+        </div>
+      </div>
+
+      <div class="side-stack">
+        <div class="side-block reveal">
+          <div class="side-title">🎓 Education</div>
+          <ul class="side-list">
+            <li>中華科技大學 · 航空電子系（2003–2005）</li>
+            <li>景文科技大學 · 電子計算機組（2000–2003）</li>
+            <li>網路系統整合工程師就業養成班</li>
+          </ul>
+        </div>
+        <div class="side-block reveal">
+          <div class="side-title">✨ Core Strengths</div>
+          <ul class="side-list">
+            <li>積極主動，自主完成任務</li>
+            <li>整合力強，建立標準化流程</li>
+            <li>Team Leader 跨部門協作</li>
+            <li>誠信負責，追求完美執行</li>
+          </ul>
+        </div>
+        <div class="side-block reveal">
+          <div class="side-title">⚡ Currently Focusing</div>
+          <ul class="side-list">
+            <li>Kubernetes · Cloud Native</li>
+            <li>Ansible · IaC 自動化</li>
+            <li>GCP · 雲端原生架構</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- JOURNEY -->
+  <section id="journey">
+    <div class="sec-tag reveal">— 02 · Professional Journey</div>
+    <h2 class="sec-title reveal">工作經歷</h2>
+    <p class="sec-sub reveal">每一段經歷，都堆疊出今日的技術視野。</p>
+
+    <div class="journey-list">
+      <div class="job current reveal">
+        <div class="job-head">
+          <h3>電信集團 · 資訊服務技術部</h3>
+          <span class="job-period">2012/08 — 至今</span>
+        </div>
+        <div class="job-role">主任工程師 · Senior Principal Engineer</div>
+        <div class="job-body">負責多項大型加值服務平台架構規劃與維運，涵蓋音樂串流（30萬用戶）、行動通訊整合、金流代收（每日 500+ 筆）、推播通知服務。主導 GCP 跨界整合與容器化轉型，管理 200+ 台伺服器，以 Ansible 自動化降低 20% 人力成本。獲頒十年久任服務獎。</div>
+        <div class="job-stack">
+          <span class="stack-tag">RHEL / Rocky</span>
+          <span class="stack-tag">Kubernetes</span>
+          <span class="stack-tag">Docker</span>
+          <span class="stack-tag">Ansible</span>
+          <span class="stack-tag">GCP</span>
+          <span class="stack-tag">Oracle / MySQL</span>
+          <span class="stack-tag">VMware</span>
+        </div>
+      </div>
+
+      <div class="job reveal">
+        <div class="job-head">
+          <h3>資訊服務公司 · 資訊部</h3>
+          <span class="job-period">2007/06 — 2010/09</span>
+        </div>
+        <div class="job-role">系統工程師 · System Engineer</div>
+        <div class="job-body">負責公司網頁維護（Apache Web Server）、PHP 程式開發、內部 ERP 管理系統維運，協助建立 EIP 個案管理系統，推動系統整合與網路化營運管理。</div>
+        <div class="job-stack">
+          <span class="stack-tag">Linux</span>
+          <span class="stack-tag">Apache</span>
+          <span class="stack-tag">PHP</span>
+          <span class="stack-tag">ERP</span>
+          <span class="stack-tag">網路規劃</span>
+        </div>
+      </div>
+
+      <div class="job reveal">
+        <div class="job-head">
+          <h3>航空業 · 修飛部</h3>
+          <span class="job-period">2005/02 — 2005/09</span>
+        </div>
+        <div class="job-role">飛機裝修工 · Avionics Technician</div>
+        <div class="job-body">修護航機零組件、機身複合材料翻修，取得飛機維修丙級技術士認證。大學主修航空電子，具備扎實硬體與工程思維基礎，後轉型進入 IT 領域。</div>
+        <div class="job-stack">
+          <span class="stack-tag">航空電子</span>
+          <span class="stack-tag">飛機修護丙級</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CERTS -->
+  <section id="certs">
+    <div class="sec-tag reveal">— 03 · Certifications</div>
+    <h2 class="sec-title reveal">專業認證</h2>
+    <p class="sec-sub reveal">21 張國際與本土專業認證，橫跨 Linux、雲端、容器、網路等領域。</p>
+
+    <div class="cert-wall reveal">
+      <div class="cert-group">
+        <div class="cert-group-name">Red Hat — RHCA Level <span class="count">11</span></div>
+        <div class="cert-grid">
+          <div class="cert-row"><span class="cert-ic">🥇</span><span class="cert-name">Red Hat Certified Architect (RHCA)</span><span class="cert-year">2018</span></div>
+          <div class="cert-row"><span class="cert-ic">🥇</span><span class="cert-name">RHCA II</span><span class="cert-year">2018</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">RHCE 6 / 7 / 8</span><span class="cert-year">2011–20</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">RHCSA</span><span class="cert-year">2011</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">High Availability Clustering EX436</span><span class="cert-year">2014</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">Gluster Storage Admin EX236</span><span class="cert-year">2016</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">Virtualization EX318</span><span class="cert-year">2016</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">Server Security & Hardening EX413</span><span class="cert-year">2018</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">Linux Performance Tuning EX442</span><span class="cert-year">2018</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">Ansible Automation EX407</span><span class="cert-year">2019</span></div>
+          <div class="cert-row"><span class="cert-ic">🔴</span><span class="cert-name">Enterprise Deployment EX401</span><span class="cert-year">2017</span></div>
+        </div>
+      </div>
+
+      <div class="cert-group">
+        <div class="cert-group-name">Cloud · Container · Network <span class="count">4</span></div>
+        <div class="cert-grid">
+          <div class="cert-row"><span class="cert-ic">⎈</span><span class="cert-name">Certified Kubernetes Administrator (CKA)</span><span class="cert-year">2025</span></div>
+          <div class="cert-row"><span class="cert-ic">🔵</span><span class="cert-name">AZ-104 Azure Administrator</span><span class="cert-year">2021</span></div>
+          <div class="cert-row"><span class="cert-ic">🌐</span><span class="cert-name">Cisco CCNA</span><span class="cert-year">2014</span></div>
+          <div class="cert-row"><span class="cert-ic">🌐</span><span class="cert-name">Juniper JNCIA-Junos</span><span class="cert-year">2019</span></div>
+        </div>
+      </div>
+
+      <div class="cert-group">
+        <div class="cert-group-name">Microsoft · Novell · Linux <span class="count">3</span></div>
+        <div class="cert-grid">
+          <div class="cert-row"><span class="cert-ic">🪟</span><span class="cert-name">MCTS 2008 / MCITP 2008</span><span class="cert-year">2011</span></div>
+          <div class="cert-row"><span class="cert-ic">🐧</span><span class="cert-name">Novell SUSE Linux Enterprise 11</span><span class="cert-year">2010</span></div>
+          <div class="cert-row"><span class="cert-ic">🐧</span><span class="cert-name">Linux LPIC Level 1</span><span class="cert-year">2009</span></div>
+        </div>
+      </div>
+
+      <div class="cert-group">
+        <div class="cert-group-name">中華民國技術士 <span class="count">3</span></div>
+        <div class="cert-grid">
+          <div class="cert-row"><span class="cert-ic">📜</span><span class="cert-name">電腦軟體應用（丙級）</span><span class="cert-year">1999</span></div>
+          <div class="cert-row"><span class="cert-ic">📜</span><span class="cert-name">工業電子（丙級）</span><span class="cert-year">1998</span></div>
+          <div class="cert-row"><span class="cert-ic">✈️</span><span class="cert-name">飛機修護（丙級）</span><span class="cert-year">2005</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills">
+    <div class="sec-tag reveal">— 04 · Tech Stack</div>
+    <h2 class="sec-title reveal">技術棧</h2>
+    <p class="sec-sub reveal">日常使用的工具與技術。</p>
+
+    <div class="skills-wrap reveal">
+      <div class="skill-row">
+        <div class="skill-cat">OS · Linux</div>
+        <div class="skill-chips">
+          <span class="skill-chip">RHEL</span>
+          <span class="skill-chip">Rocky Linux</span>
+          <span class="skill-chip">CentOS</span>
+          <span class="skill-chip">SUSE</span>
+          <span class="skill-chip">Windows Server</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-cat">Container</div>
+        <div class="skill-chips">
+          <span class="skill-chip">Kubernetes</span>
+          <span class="skill-chip">Docker</span>
+          <span class="skill-chip">OpenShift</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-cat">Automation</div>
+        <div class="skill-chips">
+          <span class="skill-chip">Ansible</span>
+          <span class="skill-chip">Shell Script</span>
+          <span class="skill-chip">IaC</span>
+          <span class="skill-chip">Git</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-cat">Cloud</div>
+        <div class="skill-chips">
+          <span class="skill-chip">GCP</span>
+          <span class="skill-chip">Azure</span>
+          <span class="skill-chip learning">AWS (學習中)</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-cat">Database</div>
+        <div class="skill-chips">
+          <span class="skill-chip">Oracle 11g/19c</span>
+          <span class="skill-chip">MySQL</span>
+          <span class="skill-chip">資料庫維運</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-cat">Virtualization</div>
+        <div class="skill-chips">
+          <span class="skill-chip">VMware</span>
+          <span class="skill-chip">KVM</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-cat">Web</div>
+        <div class="skill-chips">
+          <span class="skill-chip">Apache</span>
+          <span class="skill-chip">Tomcat</span>
+          <span class="skill-chip">PHP</span>
+        </div>
+      </div>
+      <div class="skill-row">
+        <div class="skill-cat">Soft Skills</div>
+        <div class="skill-chips">
+          <span class="skill-chip">系統架構規劃</span>
+          <span class="skill-chip">Team Leadership</span>
+          <span class="skill-chip">跨部門協作</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="sec-tag reveal">— 05 · Contact</div>
+    <h2 class="sec-title reveal">聯絡我</h2>
+    <p class="sec-sub reveal">準備好開啟下一段合作了嗎？歡迎透過以下方式聯繫。</p>
+
+    <div class="contact-grid">
+      <a class="contact-tile reveal" href="https://github.com/JackalChien" target="_blank">
+        <div class="contact-icon">🐙</div>
+        <div>
+          <div class="contact-lbl">GitHub</div>
+          <div class="contact-val">JackalChien</div>
+        </div>
+      </a>
+      <div class="contact-tile reveal">
+        <div class="contact-icon">📍</div>
+        <div>
+          <div class="contact-lbl">Location</div>
+          <div class="contact-val">新北市 / 台北市</div>
+        </div>
+      </div>
+      <div class="contact-tile reveal">
+        <div class="contact-icon">🗓</div>
+        <div>
+          <div class="contact-lbl">Availability</div>
+          <div class="contact-val">約一個月可到職</div>
+        </div>
+      </div>
+      <div class="contact-tile reveal">
+        <div class="contact-icon">🌐</div>
+        <div>
+          <div class="contact-lbl">Languages</div>
+          <div class="contact-val">中文 · 英文</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<footer>
+  <span>© 2026 Jackal Chien · Senior System Engineer</span>
+</footer>
+
+<script>
+  // Stagger reveal on scroll
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => entry.target.classList.add('visible'), i * 80);
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+
+</body>
+</html>
